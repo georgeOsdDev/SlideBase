@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <style type="text/css">
+    body {
+      background-color: black;
+      font-family: Helvetica, Arial, Verdana;
+      overflow: hidden;
+    }
+    div#container {
+      position: relative;
+      text-align: center;
+    }
+    div#container a {
+      position: absolute;
+      top:0;
+      color:white;
+      text-align: right;
+      float:right;
+    }
+    div#container img.bg {
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <a href="/">Back To Home</a>
+    <img class="bg" src="/images/whyunoguy<%= status %>.jpg" alt="<%= title %>">
+  </div>
+</body>
+</html>

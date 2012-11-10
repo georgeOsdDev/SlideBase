@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>index</title>
+  <link rel="stylesheet" href="/stylesheets/slideBase.css">
+  <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script> -->
+  <script src="/vendor/modernizr-2.6.2.min.js"></script>
+</head>
+<body>
+  <div id="adminMenu">
+    <span class='adminMsg <%= msgClass %>'><%= msg %></span>
+    <form class='<%= formClass %>' id="login" action="/login" method="POST">
+      <label for="input_name">UserName:</label>
+      <input id="input_name" type="text" name="user" size="20" placeholder="Name Here">
+      <label for="input_passs">Password:</label>
+      <input id="input_pass" type="password" name="pass" size="20" placeholder="Password Here">
+      <input class="btn" type="submit" value="login"/>
+      <hr>
+    </form>
+  </div>
+  <div id="slideList">  
+    <h2>Your Slides</h2>
+    <ul>
+      <% for(var i in slides){ %>
+      <li><a href="./slides/<%= slides[i] %>"><%= slides[i].replace(".html","") %></a></li>
+      <% } %>
+    </ul>
+  </div>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript">window.jQuery || document.write('<script src="/vendor/jquery-1.8.2.min.js"><\/script>');</script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.1/underscore-min.js"></script>
+  <script type="text/javascript">window._ || document.write('<script src="/vendor/underscore-1.4.1.min.js"><\/script>');</script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+  <script type="text/javascript">window.Backbone || document.write('<script src="/vendor/backbone-0.9.2.min.js"><\/script>');</script>
+  <script src="/javascripts/slideBaseClient.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      setTimeout(function(){
+        $(".successMsg").fadeOut("slow");
+      },1000);
+    });
+  </script>
+</body>
+</html>

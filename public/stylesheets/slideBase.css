@@ -1,0 +1,20 @@
+.hide{display:none}
+.disp{display:display}
+header,section,footer{display:none}
+body{background:#333;font-family:"Lucida Grande",Helvetica,Arial,sans-serif;font-size:14px;letter-spacing:.02em;margin:0;color:#fff;overflow:hidden}
+section{display:none;position:absolute;cursor:hand;top:0;left:0}
+#wrap{padding:30px}
+.slide{position:absolute}
+.ctl{position:absolute;text-align:left;margin:0 5px;top:5px;right:0;color:WhiteSmoke;z-index:10}
+.help{position:absolute;margin:0 5px;top:15px;right:0;background-color:#333;opacity:.8;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=80);filter:alpha(opacity=80);width:200px;padding:0;color:#fff}
+.help > *{font-size:16px;vertical-align:center;margin:2px 0 2px 0;border-bottom:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0;box-shadow:#fff 0 1px 0}
+.transform{-webkit-transition:-webkit-transform 1000ms ease-in-out;-moz-transition:-moz-transform 1000ms ease-in-out;-o-transition:-o-transform 1000ms ease-in-out;-ms-transition:-ms-transform 1000ms ease-in-out;transition:transform 1000ms ease-in-out}
+#adminMenu{top:0;text-align:right;color:#fff}
+#adminMenu .adminMsg{text-align:right}
+#adminMenu .successMsg{position:absolute;top:0;right:0;color:#ff0}
+#adminMenu .errorMsg{color:#f00}
+#adminMenu input{background-color:#fff}
+.btn{display:inline-block;margin-top:-1px;margin-bottom:0;padding:2px 9px 3px;font-size:12px;line-height:14px;text-align:center;vertical-align:middle;cursor:pointer;color:#333;text-shadow:0 1px 1px rgba(255,255,255,0.75);background-color:#f5f5f5;background-image:-webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, #e6e6e6));background-image:-webkit-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:-moz-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:-o-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:-ms-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border:1px solid #bbb;border-bottom-color:#a2a2a2;-webkit-border-radius:4px;border-radius:4px;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05)}
+.btn:hover,.btn:active{color:#333;background-color:#e6e6e6;text-decoration:none;background-position:0 35px;-webkit-transition:background-position .1s linear;-moz-transition:background-position .1s linear;-o-transition:background-position .1s linear;-ms-transition:background-position .1s linear;transition:background-position .1s linear}
+#slideList{padding:50px}
+#slideList a{color:#34d0e7}

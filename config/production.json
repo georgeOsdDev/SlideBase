@@ -1,0 +1,10 @@
+{
+  "admin":{
+    "user":"takeharu",
+    "pass":"19c56e45018b7bc5643f83dec45cc96fed8b99a9"
+  },
+  "session":{
+    "secret":"f4536ea82617404a581407b30eebed6262948799"
+  },
+  "cookieSecret":"0df8c07a724e5f0641fef3be6d2f2871abe46339"
+}

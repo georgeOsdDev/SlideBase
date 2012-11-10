@@ -1,0 +1,50 @@
+{
+  "name": "SlideBase",
+  "version": "0.0.1",
+  "description": "Html Presentation Platform",
+  "homepage": "https://georgeosddev.github.com/SlideBase",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app",
+    "build": "cake build",
+    "test": "./bin/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/georgeOsdDev/SlideBase.git"
+  },
+  "keywords": [
+    "Slide",
+    "Presentation",
+    "Realtime",
+    "websocket"
+  ],
+  "author": {
+    "name": "Takeharu.Oshida",
+    "email": "georgeosddev@gmail.com",
+    "url": "http://george-osd-site.cloudfoundry.com/"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://creativecommons.org/licenses/MIT/"
+    }
+  ],
+  "dependencies": {
+    "express": "3.0.0",
+    "ejs": ">= 0.0.1",
+    "connect": "2.6.0",
+    "socket.io": "0.9.10",
+    "connect-redis": "~1.4.5",
+    "cookie": "0.0.5"
+  },
+  "devDependencies": {
+    "coffee-script": "1.3.3",
+    "coffeelint": "0.5.2",
+    "stylus": "0.30.1",
+    "nib": "0.8.2",
+    "uglify-js": "1.3.4",
+    "mocha": "~1.6.0",
+    "request": "~2.11.4"
+  }
+}

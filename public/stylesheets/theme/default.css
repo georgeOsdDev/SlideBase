@@ -1,0 +1,22 @@
+body{font-family:"Lucida Grande",Helvetica,Arial,sans-serif,"Meiryo UI";letter-spacing:.02em;color:#000;font-size:150%;background:#333;background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #2e2e2e), color-stop(0.33333333333333326, #333), color-stop(1, vertical));background:-webkit-linear-gradient(top, #2e2e2e 0%, #333 33.33333333333333%, vertical 100%);background:-moz-linear-gradient(top, #2e2e2e 0%, #333 33.33333333333333%, vertical 100%);background:-o-linear-gradient(top, #2e2e2e 0%, #333 33.33333333333333%, vertical 100%);background:-ms-linear-gradient(top, #2e2e2e 0%, #333 33.33333333333333%, vertical 100%);background:linear-gradient(top, #2e2e2e 0%, #333 33.33333333333333%, vertical 100%);backgorund-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #2e2e2e), color-stop(1, #333));backgorund-image:-webkit-linear-gradient(top, #2e2e2e 0%, #333 100%);backgorund-image:-moz-linear-gradient(top, #2e2e2e 0%, #333 100%);backgorund-image:-o-linear-gradient(top, #2e2e2e 0%, #333 100%);backgorund-image:-ms-linear-gradient(top, #2e2e2e 0%, #333 100%);backgorund-image:linear-gradient(top, #2e2e2e 0%, #333 100%)}
+em{color:#8dbd0c}
+a{color:#34d0e7}
+li{margin-left:20px}
+.slide{background:#eee;-webkit-border-radius:6px;border-radius:6px;-webkit-box-shadow:rgba(255,255,255,0.5) -1px 1px 0,#fff -1px 1px 0 inset;box-shadow:rgba(255,255,255,0.5) -1px 1px 0,#fff -1px 1px 0 inset}
+.slide > *{margin-right:30px;margin-left:10px;padding:10px 0 0 20px}
+.slide > div > *{width:100%;height:100%}
+.slide > h1{background:F8F8F8}
+.slide > h1,h2{margin-top:-10px;border-bottom:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0;box-shadow:#fff 0 1px 0;text-shadow:-1px 1px #fff}
+.slide > * > iframe{height:60%;width:100%;border-top:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0 inset;box-shadow:#fff 0 1px 0 inset;border-right:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0 inset;box-shadow:#fff 0 1px 0 inset;border-left:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0;box-shadow:#fff 0 1px 0;border-bottom:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0;box-shadow:#fff 0 1px 0}
+.slide > table{padding-left:10px;max-width:90%;background-color:transparent;border-collapse:collapse;border-spacing:0;width:90%;margin-bottom:18px}
+.slide > table > thead > tr > th,.slide > table > tr > th{text-align:left;vertical-align:bottom;font-weight:bold}
+.slide > table > tbody > tr > td,.slide > table > tr > td{padding:8px;line-height:18px;text-align:left;vertical-align:top;border-top:1px solid #ddd}
+.slide > table > tbody tr:hover td,.slide > table > tbody tr:hover th{background-color:#f5f5f5}
+.slide > img{height:80%;margin-left:auto}
+.btn{display:inline-block;margin-top:-1px;margin-bottom:0;padding:2px 9px 3px;font-size:12px;line-height:14px;text-align:center;vertical-align:middle;cursor:pointer;color:#333;text-shadow:0 1px 1px rgba(255,255,255,0.75);background-color:#f5f5f5;background-image:-webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, #e6e6e6));background-image:-webkit-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:-moz-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:-o-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:-ms-linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-image:linear-gradient(bottom, #fff 0%, #e6e6e6 100%);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border:1px solid #bbb;border-bottom-color:#a2a2a2;-webkit-border-radius:4px;border-radius:4px;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05)}
+.btn:hover,.btn:active{color:#333;background-color:#e6e6e6;text-decoration:none;background-position:0 35px;-webkit-transition:background-position .1s linear;-moz-transition:background-position .1s linear;-o-transition:background-position .1s linear;-ms-transition:background-position .1s linear;transition:background-position .1s linear}
+.center{text-align:center}
+.pull-right{float:right}
+.hide{display:none}
+.berak{word-wrap:break-word}
+.clear{clear:both}
