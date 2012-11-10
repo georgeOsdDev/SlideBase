@@ -9,9 +9,10 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
 sbClient.plugins.gaya = new sbClient.Model.Plugin
   name: "gaya"
   element: """
-    <div id="#gaya" class="pluginOption">
+    <div id='#gaya' class='pluginOption'>
+      <span>Comment</span><br>
       <input type='text' name='gaya'></input>
-      <input class="btn" name='submitGaya' type="button" value="gaya"/>
+      <input class='btn' name='submitGaya' type='button' value='gaya'/><br>
       <label class='radio'>
         <input type="radio" name='gayaStyle' id='gayaStyle1' value='niconico' checked> niconico
       </label>

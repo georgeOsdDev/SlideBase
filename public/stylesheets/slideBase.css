@@ -6,7 +6,7 @@ section{display:none;position:absolute;cursor:hand;top:0;left:0}
 #wrap{padding:30px}
 .slide{position:absolute}
 .ctl{position:absolute;text-align:left;margin:0 5px;top:5px;right:0;color:WhiteSmoke;z-index:10}
-.help{position:absolute;margin:0 5px;top:15px;right:0;background-color:#333;opacity:.8;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=80);filter:alpha(opacity=80);width:200px;padding:0;color:#fff}
+.help{position:absolute;margin:0 5px;top:15px;right:0;background-color:#333;opacity:.8;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=80);filter:alpha(opacity=80);width:220px;padding:0;color:#fff}
 .help > *{font-size:16px;vertical-align:center;margin:2px 0 2px 0;border-bottom:1px solid rgba(0,0,0,0.1);-webkit-box-shadow:#fff 0 1px 0;box-shadow:#fff 0 1px 0}
 .transform{-webkit-transition:-webkit-transform 1000ms ease-in-out;-moz-transition:-moz-transform 1000ms ease-in-out;-o-transition:-o-transform 1000ms ease-in-out;-ms-transition:-ms-transform 1000ms ease-in-out;transition:transform 1000ms ease-in-out}
 #adminMenu{top:0;text-align:right;color:#fff}

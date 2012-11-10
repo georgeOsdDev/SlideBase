@@ -13,7 +13,7 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
 
   sbClient.plugins.gaya = new sbClient.Model.Plugin({
     name: "gaya",
-    element: "<div id=\"#gaya\" class=\"pluginOption\">\n  <input type='text' name='gaya'></input>\n  <input class=\"btn\" name='submitGaya' type=\"button\" value=\"gaya\"/>\n  <label class='radio'>\n    <input type=\"radio\" name='gayaStyle' id='gayaStyle1' value='niconico' checked> niconico\n  </label>\n  <label class='radio'>\n    <input type='radio' name='gayaStyle' id='gayaStyle2' value='growl'> growl\n  </label>\n</div>",
+    element: "<div id='#gaya' class='pluginOption'>\n  <span>Comment</span><br>\n  <input type='text' name='gaya'></input>\n  <input class='btn' name='submitGaya' type='button' value='gaya'/><br>\n  <label class='radio'>\n    <input type=\"radio\" name='gayaStyle' id='gayaStyle1' value='niconico' checked> niconico\n  </label>\n  <label class='radio'>\n    <input type='radio' name='gayaStyle' id='gayaStyle2' value='growl'> growl\n  </label>\n</div>",
     initialScript: function() {
       var self;
       console.log("gaya plugin is ready");
