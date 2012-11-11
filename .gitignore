@@ -5,3 +5,4 @@ node_modules
 public/slide/private*
 *.png
 *.pdf
+pdf/*

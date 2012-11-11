@@ -1,5 +1,6 @@
 log = console.log
 crypto = require 'crypto'
+fs     = require 'fs'
 { exec } = require 'child_process'
 
 Coffee =
@@ -114,6 +115,13 @@ task 'png', 'build png', (options) ->
     log stdout + stderr
     throw err if err
 
+task 'pdf', 'build pdf', (options) ->
+  exec "convert pdf/*.png pdf/slide.pdf",(err,stdout,stderr) ->
+    log stdout + stderr
+    throw err if err
+    exec "rm -rf pdf/*.png",(err,stdout,stderr) ->
+      log stdout + stderr
+      throw err if err
 
 execGlobalCommand = (command) ->
   exec "#{command.cmd} #{command.options.join(' ')}", (err, stdout, stderr)->

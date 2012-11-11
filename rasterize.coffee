@@ -29,14 +29,13 @@ page.open address, (status) ->
           $('#next').offset()
         page.sendEvent 'click', offset.left+1, offset.top+1
         setTimeout ->
-          page.render "#{nowPage}_.#{output}"
+          page.render "pdf/#{nowPage}.#{output}"
           console.log "#{nowPage} finish"
           nowPage++
           if nowPage <= pageLength
             nextPage()
           else
             console.log "allPage finish"
-            console.log "Use preview.app to convert png to PDF :-)"
             phantom.exit()
         , 3000
 
