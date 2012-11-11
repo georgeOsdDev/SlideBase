@@ -46,6 +46,15 @@ StylusTheme =
     "--out ./public/stylesheets/theme"  #dest
   ]
 
+Phantomjs = 
+  cmd: "phantomjs"
+  options: [
+    "rasterize.coffee"                  #src
+    "--compress"                        #compress option
+    "--include ./node_modules/nib/lib"  #use nib
+    "--out ./public/stylesheets/theme"  #dest
+  ]
+
 Docco =
   cmd: "./node_modules/docco/bin/docco"
   options: [
@@ -88,6 +97,23 @@ task 'server', (options) ->
   exec "open 'http://localhost:3000' && node app", (err, stdout, stderr)->
     throw err if err
     log stdout + stderr
+
+option '-l', '--length [PAGELENGTH]'
+option '-s', '--slide [SLIDE]'
+task 'png', 'build png', (options) ->
+  pageLength = options.length
+  command = 'phantomjs'
+  script = 'rasterize.coffee'
+  uri = "http://localhost:3000/slides/#{options.slide}"
+  width = 1366
+  height = 768
+  paperwidth = '48.77cm'
+  paperheight = '17.43cm'
+
+  exec "#{command} #{script} #{uri} #{pageLength} png #{width} #{height} #{paperwidth} #{paperheight}", (err, stdout, stderr)->
+    log stdout + stderr
+    throw err if err
+
 
 execGlobalCommand = (command) ->
   exec "#{command.cmd} #{command.options.join(' ')}", (err, stdout, stderr)->
