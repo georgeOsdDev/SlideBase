@@ -8,7 +8,7 @@ log           = console.log
 config   = slideBaseUtil.getConfig()
 store = slideBaseUtil.getSessionStore()
 
-users = []
+users = {}
 activeUser = 0
 
 SlideBase =
@@ -70,7 +70,7 @@ SlideBase =
       user =
         id: socket.id
         sts:"active"
-      users.push user
+      users[socket.id] = user
       io.sockets.emit "users",users
 
       # Handle message
@@ -92,7 +92,8 @@ SlideBase =
       # Disconnect
       socket.on 'disconnect', ->
         log "user:#{socket.id} was disconnected"
-        @users.socket.id = {}
+        self.activeUser--
+        users[socket.id] = {}
         socket.broadcast.volatile.emit "users",users
 
       # Error
