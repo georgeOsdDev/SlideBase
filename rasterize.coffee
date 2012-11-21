@@ -42,9 +42,9 @@ page.open address, (status) ->
       # firstPage
       setTimeout ->
         console.log "#{nowPage}_.#{output}"
-        page.render "#{nowPage}_.#{output}"
+        page.render "pdf/#{nowPage}_.#{output}"
         console.log "firstpage finish"
         nowPage++
         nextPage()
-      , 2000
+      , 3000
 
