@@ -93,6 +93,7 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
 
   sbClient.Model.Slide = Backbone.Model.extend({
     elements: '',
+    "class": '',
     page: ''
   });
 
@@ -123,7 +124,8 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
       _($(self.el).find('section')).each(function(section) {
         var slide;
         slide = new sbClient.Model.Slide({
-          elements: $(section).children(),
+          elements: $(section).contents(),
+          "class": $(section).attr('class'),
           page: num
         });
         self.collection.add(slide);
@@ -141,7 +143,7 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
         id = slide.get('page');
         tmp = document.createElement('div');
         tmp.id = "slide_" + id;
-        $(tmp).addClass(className).append(slide.get('elements'));
+        $(tmp).addClass(slide.get('class')).addClass(className).append(slide.get('elements'));
         if (css) {
           $(tmp).css(css);
         }
@@ -264,11 +266,15 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
   };
 
   fadeMove = function(slide) {
-    $('.slide').fadeOut(250, function() {
-      $('.slide').empty();
-      return $('.slide').append(slide.get('elements'));
+    var tmp;
+    tmp = document.createElement('div');
+    tmp.id = "slide_" + (slide.get('page'));
+    $(tmp).addClass(slide.get('class')).addClass('slide current').append(slide.get('elements'));
+    $('#wrap').fadeOut(250, function() {
+      $('#wrap').empty().removeClass().append(tmp);
+      return resizeSlide();
     });
-    return $('.slide').fadeIn(500, function() {
+    return $('#wrap').fadeIn(500, function() {
       return sbClient.lock = false;
     });
   };

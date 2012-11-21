@@ -76,6 +76,7 @@ move = (data) ->
 # Model:slide page
 sbClient.Model.Slide = Backbone.Model.extend
   elements:''
+  class:''
   page:''
 
 # Collection:all slide pages
@@ -107,7 +108,8 @@ sbClient.View.SlideView = Backbone.View.extend
 
     _($(self.el).find 'section' ).each (section) ->
       slide = new sbClient.Model.Slide
-        elements:$(section).children()
+        elements:$(section).contents()
+        class:$(section).attr('class')
         page:num
       self.collection.add slide
       num++
@@ -121,8 +123,10 @@ sbClient.View.SlideView = Backbone.View.extend
       id = slide.get 'page'
       tmp = document.createElement 'div'
       tmp.id = "slide_#{id}"
-      $(tmp).addClass(className)
-        .append slide.get('elements')
+      $(tmp)
+        .addClass(slide.get('class'))
+        .addClass(className)
+        .append(slide.get('elements'))
       if css then $(tmp).css css
       resizeSlide()
       $("#wrap").append $(tmp)
@@ -223,10 +227,19 @@ resizeSlide = ->
       'width': $(window).width() - 72
 
 fadeMove = (slide) ->
-  $('.slide').fadeOut 250,->
-    $('.slide').empty()
-    $('.slide').append slide.get 'elements'
-  $('.slide').fadeIn 500, ->
+  tmp = document.createElement 'div'
+  tmp.id = "slide_#{slide.get 'page'}"
+  $(tmp)
+    .addClass(slide.get('class'))
+    .addClass('slide current')
+    .append(slide.get('elements'))
+
+  $('#wrap').fadeOut 250,->
+    $('#wrap')
+      .empty().removeClass()
+      .append tmp
+    resizeSlide()
+  $('#wrap').fadeIn 500, ->
     sbClient.lock = false
 
 slideMove = (x,y,z,direction,nextpage) ->
