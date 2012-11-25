@@ -8,7 +8,9 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
 
 console.log "This is Client Side Script"
 
+#*****************************
 # Namespace
+#*****************************
 window.sbClient =
   admin:false
   lock:false
@@ -18,41 +20,59 @@ window.sbClient =
   Model:{}
   Collection:{}
   View:{}
+  Instances:{}
   option:
-    animation:'fade'
+    animation:''
     theme:'default'
   plugins:{}
-  pushMethods:{
-    'serverpush':true
+  pushMethods:
     'move':true
-  }
   isDisplayHelp:false
   userList:{}
   init: (opts={}) ->
+    # set option
     _.each opts, (val,key)->
       sbClient.option[key] = val
+
     # create slideBase
     wrap = document.createElement 'div'
     wrap.id = 'wrap'
     wrap.display = 'none'
+
     ctl = document.createElement 'div'
     ctl.id = 'ctl'
-    $(ctl).addClass('ctl')
-    $(ctl).append "<button class='btn' id='back'>&larr;</button><button class='btn' id='next'>&rarr;</button>"
+    $(ctl)
+      .addClass('ctl')
+      .append "<button class='btn' id='back'>&larr;</button><button class='btn' id='next'>&rarr;</button>"
+
     help = document.createElement('div')
     help.id = 'help'
-    $(help).addClass 'help'
-    $(help).addClass 'hide'
-    $(help).append "<p id='plgunsHead'>Plugins</p>"
-    $('body').append wrap
-    $('body').append ctl
-    $('body').append help
-    $('#plgunsHead').bind 'click', ->
+    $(help)
+      .addClass('help hide')
+      .append("<h4 id='usage'><span id='close'>✖</span>&nbsp;Usage</h4>")
+
+    $('body')
+      .append(wrap)
+      .append(ctl)
+      .append(help)
+
+    $('#close').bind 'click', ->
       $('#help').addClass('hide')
       sbClient.isDisplayHelp = false
-    slideView = new sbClient.View.SlideView()
-    pluginsView = new sbClient.View.PluginView()
-  execEmit: (name,data) ->
+
+    @Instances.slideView = new sbClient.View.Slide()
+    # @Instances.pluginView = new sbClient.View.Plugin()
+
+  #*****************************
+  # Client Methods
+  #*****************************
+  resizeSlide: ->
+    $('.slide').each ->
+      $(@).css
+        'height': $(window).height() - 72
+        'width': $(window).width() - 72
+
+  execEmit:(name,data) ->
     console.log "execEmit "+name
     obj =
       name:'plugin'
@@ -61,18 +81,69 @@ window.sbClient =
       data:data
     $('body').trigger 'execEmit', obj
 
-# Client Methods
-isEnableServerPush = (methodName) ->
-  sbClient.pushMethods.serverpush is true and sbClient.pushMethods[methodName] is true
+  isEnableServerPush:(method) ->
+    @pushMethods[method]
 
-setUserList = (userList) ->
-  sbClient.userList = userList
+  isEnablePlugin:(obj) ->
+    if not obj.plugin or not obj.plugin.name then return false
+    @isEnableServerPush obj.plugin.name
 
-move = (data) ->
-  $('body').trigger 'execMove',data
+  move:(obj) ->
+    if @isEnableServerPush 'move'
+      @Instances.slideView.trigger 'execMove',obj.data
 
+  setUserList:(userList) ->
+    @userList = userList
 
-# Backbone
+  nextSlide:(slide) ->
+    tmp = document.createElement 'div'
+    tmp.id = "slide_#{slide.get 'page'}"
+    $(tmp)
+      .addClass(slide.get('class'))
+      .addClass('slide current')
+      .append(slide.get('elements'))
+
+  simpleMove:(slide) ->
+    next = @nextSlide(slide)
+    $('#wrap')
+      .empty()
+      .removeClass()
+      .append(next)
+    @resizeSlide()
+    @lock = false
+
+  fadeMove:(slide) ->
+    next = @nextSlide(slide)
+    $('#wrap').fadeOut 250,->
+      $('#wrap')
+        .empty()
+        .removeClass()
+        .append(next)
+      sbClient.resizeSlide()
+    $('#wrap').fadeIn 500, ->
+      @lock = false
+
+  positionMove:(x,y,z,direction,nextpage) ->
+    if direction < 0 then direction +=1
+    $('#wrap > .slide').each (i,e) ->
+      # initposi
+      xx = (x * (i - nextpage))
+      yy = (y * (i - nextpage))
+      zz = (z * (i - nextpage))
+      css = "transform":"translate3d(#{xx}px,#{yy}px,#{zz}px)"
+      $(e).css css
+
+  horizontalMove:(direction,nextpage) ->
+    @positionMove $(window).width(), 0, 0, direction, nextpage
+    @lock = false
+
+  verticalMove:(direction,nextpage) ->
+    @positionMove 0, $(window).height(), 0, direction, nextpage
+    @lock = false
+
+#*****************************
+# Presentation Backbone
+#*****************************
 # Model:slide page
 sbClient.Model.Slide = Backbone.Model.extend
   elements:''
@@ -82,62 +153,69 @@ sbClient.Model.Slide = Backbone.Model.extend
 # Collection:all slide pages
 sbClient.Collection.Slides = Backbone.Collection.extend
   model: sbClient.Model.Slide
+  fetch: ->
+    self = @
+    _($('section')).each (section,index) ->
+      slide = new sbClient.Model.Slide
+        elements:$(section).contents()
+        class:$(section).attr('class')
+        page:index
+      self.add slide
+      $(section).remove()
+    sbClient.page.last = self.length
+    self.trigger 'ready'
 
 # View: SlideView render per slide
-sbClient.View.SlideView = Backbone.View.extend
+sbClient.View.Slide = Backbone.View.extend
   el:$('body')
   initialize: ->
-    @collection = new sbClient.Collection.Slides()
-    num = 0
     self = @
-    _.bindAll @, 'render','dispHelp','moveSlide','execMove','handleKey'
+    self.collection = new sbClient.Collection.Slides()
+    _.bindAll @, 'render','dispHelp','moveSlide','handleKey'
 
     # Bind key event
     self.$el.bind 'keydown', self.handleKey
     # Bind swipe event
     self.$el.bind 'swipeleft', self.moveSlide 1
     self.$el.bind 'swiperight', self.moveSlide -1
-
+    # Bind click event
     $('#next').bind 'click', ->
       self.moveSlide 1
     $('#back').bind 'click', ->
       self.moveSlide -1
+    # Bind server push
+    self.on 'execMove',(event) ->
+      args = Array.prototype.slice.apply arguments
+      data = args[0]
+      if data.currentPage is sbClient.page.current then self.moveSlide data.direction
 
-    $('body').on 'execMove',(event,obj) ->
-      self.execMove obj.data
+    self.collection.on 'ready',->
+      self.render()
 
-    _($(self.el).find 'section' ).each (section) ->
-      slide = new sbClient.Model.Slide
-        elements:$(section).contents()
-        class:$(section).attr('class')
-        page:num
-      self.collection.add slide
-      num++
-    sbClient.page.last = num
-    self.render()
+    self.collection.fetch()
 
   render: ->
     self = @
     append = (className,page,css) ->
-      slide = self.collection.at page
+      slide = (self.collection.where page:page)[0]
       id = slide.get 'page'
       tmp = document.createElement 'div'
       tmp.id = "slide_#{id}"
       $(tmp)
-        .addClass(slide.get('class'))
         .addClass(className)
+        .addClass(slide.get('class'))
         .append(slide.get('elements'))
       if css then $(tmp).css css
-      resizeSlide()
+      sbClient.resizeSlide()
       $("#wrap").append $(tmp)
 
     appendAll = (x,y,z) ->
-      $("#wrap").addClass "transform"
       self.collection.each (slide, i) ->
         css =
           "transform":"translate3d(#{x*i}px,#{y*i}px,#{z*i}px)"
         if i is 0
           append "slide current transform", 0, css
+          location.hash = i
         else
           append "slide transform", i, css
 
@@ -177,9 +255,10 @@ sbClient.View.SlideView = Backbone.View.extend
       @dispHelp()
 
   moveSlide: (direction) ->
+    self = @
     if sbClient.lock then return
     nextpage = sbClient.page.current+direction
-    next = @collection.at nextpage
+    next = self.collection.at nextpage
     if next
       obj =
         name:'move'
@@ -190,24 +269,21 @@ sbClient.View.SlideView = Backbone.View.extend
       sbClient.lock = true
       switch sbClient.option.animation
         when 'horizontal'
-          horizontalMove direction,nextpage
+          sbClient.horizontalMove direction,nextpage
           break
         when 'vertical'
-          verticalMove direction,nextpage
+          sbClient.verticalMove direction,nextpage
           break
         when 'fade'
-          fadeMove next
+          sbClient.fadeMove next
           break
         else
           # TODO
           # Enable aditional animation with plugin
-          fadeMove(next)
+          sbClient.simpleMove next
       sbClient.page.current = nextpage
+      location.hash = sbClient.page.current
       sbClient.lock = false
-
-  execMove: (data) ->
-    if data.currentPage is sbClient.page.current
-      @moveSlide data.direction
 
   dispHelp: ->
     console.log "Help!"
@@ -220,96 +296,50 @@ sbClient.View.SlideView = Backbone.View.extend
         .addClass('disp')
       sbClient.isDisplayHelp = true
 
-resizeSlide = ->
-  $('.slide').each ->
-    $(@).css
-      'height': $(window).height() - 72
-      'width': $(window).width() - 72
-
-fadeMove = (slide) ->
-  tmp = document.createElement 'div'
-  tmp.id = "slide_#{slide.get 'page'}"
-  $(tmp)
-    .addClass(slide.get('class'))
-    .addClass('slide current')
-    .append(slide.get('elements'))
-
-  $('#wrap').fadeOut 250,->
-    $('#wrap')
-      .empty().removeClass()
-      .append tmp
-    resizeSlide()
-  $('#wrap').fadeIn 500, ->
-    sbClient.lock = false
-
-slideMove = (x,y,z,direction,nextpage) ->
-  if direction < 0 then direction +=1
-  $('#wrap > .slide').each (i,e) ->
-    # initposi
-    xx = (x * (i - nextpage))
-    yy = (y * (i - nextpage))
-    zz = (z * (i - nextpage))
-    css = "transform":"translate3d(#{xx}px,#{yy}px,#{zz}px)"
-    $(e).css css
-
-
-horizontalMove = (direction,nextpage) ->
-  slideMove $(window).width(), 0, 0, direction, nextpage
-  sbClient.lock = false
-
-verticalMove = (direction,nextpage) ->
-  slideMove 0, $(window).height(), 0, direction, nextpage
-  sbClient.lock = false
-
-
+#*****************************
+# Plugins setting Backbone
+#*****************************
+# Model:slide Plugin
 sbClient.Model.Plugin = Backbone.Model.extend
   defaults:
+    id: ''
     name: ''
     callback: ''
     element: ''
     initialScript: ->
 
-sbClient.plugins.serverpush = new sbClient.Model.Plugin
-  name: "serverpush"
-  element: """
-    <div id='#serverpush' class='pluginOption'>
-      <input type='checkbox' name='serverpushCheck' value='enable' checked>ServerPush
-    </div>
-  """
-  initialScript: ->
-    $('[name="serverpushCheck"]').bind 'change',->
-      sbClient.pushMethods.serverpush = $(this).attr("checked") is "checked"
-
-# Collection:all slide pages
-sbClient.Collection.Plugins = Backbone.Collection.extend
-  model: sbClient.Model.Plugin
-  fetch: ->
+  initialize:->
     self = @
-    _.each sbClient.plugins , (plugin)->
-      self.add plugin
-      sbClient.pushMethods[plugin.get('name')] = true
+    $ ->
+      name = self.get 'name'
+      sbClient.plugins[name] = self
+      sbClient.pushMethods[name] = true
+      $('#help').append self.get('element')
+      script = self.get('initialScript') || {}
+      script()
 
-# View: OverView contains whole slides
-sbClient.View.PluginView = Backbone.View.extend
-  el: $('#help')
-  initialize: ->
-    console.log "initialize plugins"
-    self = @
-    @collection = new sbClient.Collection.Plugins()
-    _.bindAll @, 'render'
-    @collection.on 'add', (plugin) ->
-      self.render plugin
-    @collection.fetch()
+# # Collection:all plugins
+# sbClient.Collection.Plugins = Backbone.Collection.extend
+#   model: sbClient.Model.Slide
 
-  render: (plugin) ->
-    $('#help').append plugin.get 'element'
-    script = plugin.get('initialScript')
-    script()
+# # View: plugins
+# sbClient.View.Plugin = Backbone.View.extend
+#   el: $('#help')
+#   initialize: ->
+#     self = @
+#     self.collection = new sbClient.Collection.Plugins()
+#     _.bindAll @, 'render'
+#     self.collection.on 'add',(plugin) ->
+#       self.render plugin
 
-sbClient.View.PluginView.prototype.setPlugin = (plugin) ->
-  @collection.add plugin
+#   render: (plugin)->
+#     $('#help').append plugin.get 'element'
+#     script = plugin.get('initialScript') || {}
+#     script()
 
-# socketIO setting
+#*****************************
+# socket.IO setting
+#*****************************
 socket = io?.connect "http://#{location.host}"
 
 socket?.on 'error', (reason) ->
@@ -318,33 +348,36 @@ socket?.on 'error', (reason) ->
 socket?.on 'connect', ->
   console.log 'client connected'
 
-  # Message From Client to Server
+  # Message From Clients to Server
   $('body').on 'execEmit', (event,obj) ->
     socket.emit obj.name, obj
 
+  # Message From Server to Clients
   socket.on 'users', (userList) ->
-    setUserList userList
+    sbClient.setUserList userList
 
   socket.on 'move', (obj) ->
-    if not isEnableServerPush 'move' then return false
-    move obj
+    sbClient.move obj
 
   socket.on 'plugin', (obj) ->
-    if not obj.plugin or not obj.plugin.name then return false
-    if not isEnableServerPush obj.plugin.name then return false
-    func = sbClient.plugins[obj.plugin.name].get("callback") || {}
-    func(obj.data)
+    if sbClient.isEnablePlugin obj
+      func = sbClient.plugins[obj.plugin.name].get("callback") || {}
+      func(obj.data)
 
   socket.on 'disconnect', ->
     # disable event
     $('body').off 'execEmit'
     console.log 'disconnected Bye!'
 
+#*****************************
+# DOM ready
+#*****************************
 $ ->
-  resizeSlide()
+
+  sbClient.resizeSlide()
 
   $(window).bind 'resize',->
-    resizeSlide()
+    sbClient.resizeSlide()
 
   $('a').bind 'click', (e) ->
     e.stopPropagation()

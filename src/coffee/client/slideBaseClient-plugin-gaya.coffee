@@ -5,8 +5,7 @@ author:  [Takeharu Oshida](http://about.me/takeharu.oshida)
 version: 0.1
 licence: [MIT](http://opensource.org/licenses/mit-license.php)
 ###
-
-sbClient.plugins.gaya = new sbClient.Model.Plugin
+gaya = new sbClient.Model.Plugin
   name: "gaya"
   element: """
     <div id='#gaya' class='pluginOption'>
@@ -29,12 +28,11 @@ sbClient.plugins.gaya = new sbClient.Model.Plugin
       gaya = $('[name="gaya"]').val()
       if gaya.length < 1 then return
       sbClient.execEmit 'gaya',gaya
-      func = sbClient.plugins['gaya'].get 'callback'
+      func = sbClient.plugins['gaya'].get('callback')
       func(gaya)
       return false
 
   callback: (gaya)->
-    console.log "gaya plugin was called: #{gaya}"
     style = $('[name="gayaStyle"]:checked').val()
     hex = '0123456789ABCDEF'.split('')
 
@@ -50,7 +48,6 @@ sbClient.plugins.gaya = new sbClient.Model.Plugin
       ]
       ret.join('')
 
-    console.log color()
     css = {}
     if style is "niconico"
       css =
