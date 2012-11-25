@@ -20,15 +20,6 @@ Coffeelint =
     "./src/coffee"                      #src
   ]
 
-Uglifyjs =
-  cmd: "./node_modules/uglify-js/bin/uglifyjs"
-  options: [
-    "--verbose"                                       #verbose
-    "-o ./public/javascripts/slideBaseClient.min.js"  #output
-    # "--overwrite"                                   #overwrite
-    "./public/javascripts/slideBaseClient.js"         #src
-  ]
-
 Stylus =
   cmd: "./node_modules/stylus/bin/stylus"
   options: [
@@ -47,23 +38,6 @@ StylusTheme =
     "--out ./public/stylesheets/theme"  #dest
   ]
 
-Phantomjs = 
-  cmd: "phantomjs"
-  options: [
-    "rasterize.coffee"                  #src
-    "--compress"                        #compress option
-    "--include ./node_modules/nib/lib"  #use nib
-    "--out ./public/stylesheets/theme"  #dest
-  ]
-
-Docco =
-  cmd: "./node_modules/docco/bin/docco"
-  options: [
-    "-o ./public/docs"                  #dest
-    "./src/coffee/*.coffee"             #src
-    "./src/coffee/client/*.coffee"      #src
-  ]  
-
 task 'compile', (options) ->
   execGlobalCommand(Coffeelint)
   execGlobalCommand(Coffee)
@@ -78,7 +52,7 @@ task 'lint', (options) ->
   execGlobalCommand(Coffeelint)
 
 task 'uglify', (options) ->
-  execGlobalCommand(Uglifyjs)
+  uglify()
 
 task 'lint', (options) ->
   execGlobalCommand(Coffeelint)
@@ -131,6 +105,20 @@ execGlobalCommand = (command) ->
       exec "#{command.callback}", (err, stdout, stderr)->
         log stdout + stderr
         throw err if err
+
+uglify = ->
+  files = fs.readdirSync('./public/javascripts/')
+  files.forEach (file,i) ->
+    src = file.replace('.js','')
+    dest = "#{src}.min.js"
+    Uglifyjs =
+      cmd: "./node_modules/uglify-js/bin/uglifyjs"
+      options: [
+        "--verbose"                            #verbose
+        "-o ./public/javascripts/#{dest}"      #output
+        "./public/javascripts/#{file}"         #src
+      ]
+    execGlobalCommand(Uglifyjs)
 
 clean = ->
   exec 'rm -rf ./lib/*.js', (err, stdout, stderr)->
