@@ -10,8 +10,9 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
 
 
 (function() {
+  var gaya;
 
-  sbClient.plugins.gaya = new sbClient.Model.Plugin({
+  gaya = new sbClient.Model.Plugin({
     name: "gaya",
     element: "<div id='#gaya' class='pluginOption'>\n  <span>Comment</span><br>\n  <input type='text' name='gaya'></input>\n  <input class='btn' name='submitGaya' type='button' value='gaya'/><br>\n  <label class='radio'>\n    <input type=\"radio\" name='gayaStyle' id='gayaStyle1' value='niconico' checked> niconico\n  </label>\n  <label class='radio'>\n    <input type='radio' name='gayaStyle' id='gayaStyle2' value='growl'> growl\n  </label>\n</div>",
     initialScript: function() {
@@ -20,7 +21,7 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
       sbClient.gayaList = {};
       self = this;
       return $('[name="submitGaya"]').click(function() {
-        var func, gaya;
+        var func;
         gaya = $('[name="gaya"]').val();
         if (gaya.length < 1) {
           return;
@@ -33,7 +34,6 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
     },
     callback: function(gaya) {
       var color, css, div, growlView, hex, niconicoView, saveGaya, style;
-      console.log("gaya plugin was called: " + gaya);
       style = $('[name="gayaStyle"]:checked').val();
       hex = '0123456789ABCDEF'.split('');
       color = function() {
@@ -41,7 +41,6 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
         ret = ['#', hex[Math.floor(Math.random() * hex.length)], hex[Math.floor(Math.random() * hex.length)], hex[Math.floor(Math.random() * hex.length)], hex[Math.floor(Math.random() * hex.length)], hex[Math.floor(Math.random() * hex.length)], hex[Math.floor(Math.random() * hex.length)]];
         return ret.join('');
       };
-      console.log(color());
       css = {};
       if (style === "niconico") {
         css = {

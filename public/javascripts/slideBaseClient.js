@@ -10,7 +10,7 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
 
 
 (function() {
-  var fadeMove, horizontalMove, isEnableServerPush, move, resizeSlide, setUserList, slideMove, socket, verticalMove;
+  var socket;
 
   console.log("This is Client Side Script");
 
@@ -24,19 +24,19 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
     Model: {},
     Collection: {},
     View: {},
+    Instances: {},
     option: {
-      animation: 'fade',
+      animation: '',
       theme: 'default'
     },
     plugins: {},
     pushMethods: {
-      'serverpush': true,
       'move': true
     },
     isDisplayHelp: false,
     userList: {},
     init: function(opts) {
-      var ctl, help, pluginsView, slideView, wrap;
+      var ctl, help, wrap;
       if (opts == null) {
         opts = {};
       }
@@ -48,22 +48,24 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
       wrap.display = 'none';
       ctl = document.createElement('div');
       ctl.id = 'ctl';
-      $(ctl).addClass('ctl');
-      $(ctl).append("<button class='btn' id='back'>&larr;</button><button class='btn' id='next'>&rarr;</button>");
+      $(ctl).addClass('ctl').append("<button class='btn' id='back'>&larr;</button><button class='btn' id='next'>&rarr;</button>");
       help = document.createElement('div');
       help.id = 'help';
-      $(help).addClass('help');
-      $(help).addClass('hide');
-      $(help).append("<p id='plgunsHead'>Plugins</p>");
-      $('body').append(wrap);
-      $('body').append(ctl);
-      $('body').append(help);
-      $('#plgunsHead').bind('click', function() {
+      $(help).addClass('help hide').append("<h4 id='usage'><span id='close'>✖</span>&nbsp;Usage</h4>");
+      $('body').append(wrap).append(ctl).append(help);
+      $('#close').bind('click', function() {
         $('#help').addClass('hide');
         return sbClient.isDisplayHelp = false;
       });
-      slideView = new sbClient.View.SlideView();
-      return pluginsView = new sbClient.View.PluginView();
+      return this.Instances.slideView = new sbClient.View.Slide();
+    },
+    resizeSlide: function() {
+      return $('.slide').each(function() {
+        return $(this).css({
+          'height': $(window).height() - 72,
+          'width': $(window).width() - 72
+        });
+      });
     },
     execEmit: function(name, data) {
       var obj;
@@ -76,19 +78,71 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
         data: data
       };
       return $('body').trigger('execEmit', obj);
+    },
+    isEnableServerPush: function(method) {
+      return this.pushMethods[method];
+    },
+    isEnablePlugin: function(obj) {
+      if (!obj.plugin || !obj.plugin.name) {
+        return false;
+      }
+      return this.isEnableServerPush(obj.plugin.name);
+    },
+    move: function(obj) {
+      if (this.isEnableServerPush('move')) {
+        return this.Instances.slideView.trigger('execMove', obj.data);
+      }
+    },
+    setUserList: function(userList) {
+      return this.userList = userList;
+    },
+    nextSlide: function(slide) {
+      var tmp;
+      tmp = document.createElement('div');
+      tmp.id = "slide_" + (slide.get('page'));
+      return $(tmp).addClass(slide.get('class')).addClass('slide current').append(slide.get('elements'));
+    },
+    simpleMove: function(slide) {
+      var next;
+      next = this.nextSlide(slide);
+      $('#wrap').empty().removeClass().append(next);
+      this.resizeSlide();
+      return this.lock = false;
+    },
+    fadeMove: function(slide) {
+      var next;
+      next = this.nextSlide(slide);
+      $('#wrap').fadeOut(250, function() {
+        $('#wrap').empty().removeClass().append(next);
+        return sbClient.resizeSlide();
+      });
+      return $('#wrap').fadeIn(500, function() {
+        return this.lock = false;
+      });
+    },
+    positionMove: function(x, y, z, direction, nextpage) {
+      if (direction < 0) {
+        direction += 1;
+      }
+      return $('#wrap > .slide').each(function(i, e) {
+        var css, xx, yy, zz;
+        xx = x * (i - nextpage);
+        yy = y * (i - nextpage);
+        zz = z * (i - nextpage);
+        css = {
+          "transform": "translate3d(" + xx + "px," + yy + "px," + zz + "px)"
+        };
+        return $(e).css(css);
+      });
+    },
+    horizontalMove: function(direction, nextpage) {
+      this.positionMove($(window).width(), 0, 0, direction, nextpage);
+      return this.lock = false;
+    },
+    verticalMove: function(direction, nextpage) {
+      this.positionMove(0, $(window).height(), 0, direction, nextpage);
+      return this.lock = false;
     }
-  };
-
-  isEnableServerPush = function(methodName) {
-    return sbClient.pushMethods.serverpush === true && sbClient.pushMethods[methodName] === true;
-  };
-
-  setUserList = function(userList) {
-    return sbClient.userList = userList;
-  };
-
-  move = function(data) {
-    return $('body').trigger('execMove', data);
   };
 
   sbClient.Model.Slide = Backbone.Model.extend({
@@ -98,17 +152,32 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
   });
 
   sbClient.Collection.Slides = Backbone.Collection.extend({
-    model: sbClient.Model.Slide
+    model: sbClient.Model.Slide,
+    fetch: function() {
+      var self;
+      self = this;
+      _($('section')).each(function(section, index) {
+        var slide;
+        slide = new sbClient.Model.Slide({
+          elements: $(section).contents(),
+          "class": $(section).attr('class'),
+          page: index
+        });
+        self.add(slide);
+        return $(section).remove();
+      });
+      sbClient.page.last = self.length;
+      return self.trigger('ready');
+    }
   });
 
-  sbClient.View.SlideView = Backbone.View.extend({
+  sbClient.View.Slide = Backbone.View.extend({
     el: $('body'),
     initialize: function() {
-      var num, self;
-      this.collection = new sbClient.Collection.Slides();
-      num = 0;
+      var self;
       self = this;
-      _.bindAll(this, 'render', 'dispHelp', 'moveSlide', 'execMove', 'handleKey');
+      self.collection = new sbClient.Collection.Slides();
+      _.bindAll(this, 'render', 'dispHelp', 'moveSlide', 'handleKey');
       self.$el.bind('keydown', self.handleKey);
       self.$el.bind('swipeleft', self.moveSlide(1));
       self.$el.bind('swiperight', self.moveSlide(-1));
@@ -118,47 +187,46 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
       $('#back').bind('click', function() {
         return self.moveSlide(-1);
       });
-      $('body').on('execMove', function(event, obj) {
-        return self.execMove(obj.data);
+      self.on('execMove', function(event) {
+        var args, data;
+        args = Array.prototype.slice.apply(arguments);
+        data = args[0];
+        if (data.currentPage === sbClient.page.current) {
+          return self.moveSlide(data.direction);
+        }
       });
-      _($(self.el).find('section')).each(function(section) {
-        var slide;
-        slide = new sbClient.Model.Slide({
-          elements: $(section).contents(),
-          "class": $(section).attr('class'),
-          page: num
-        });
-        self.collection.add(slide);
-        return num++;
+      self.collection.on('ready', function() {
+        return self.render();
       });
-      sbClient.page.last = num;
-      return self.render();
+      return self.collection.fetch();
     },
     render: function() {
       var append, appendAll, self;
       self = this;
       append = function(className, page, css) {
         var id, slide, tmp;
-        slide = self.collection.at(page);
+        slide = (self.collection.where({
+          page: page
+        }))[0];
         id = slide.get('page');
         tmp = document.createElement('div');
         tmp.id = "slide_" + id;
-        $(tmp).addClass(slide.get('class')).addClass(className).append(slide.get('elements'));
+        $(tmp).addClass(className).addClass(slide.get('class')).append(slide.get('elements'));
         if (css) {
           $(tmp).css(css);
         }
-        resizeSlide();
+        sbClient.resizeSlide();
         return $("#wrap").append($(tmp));
       };
       appendAll = function(x, y, z) {
-        $("#wrap").addClass("transform");
         return self.collection.each(function(slide, i) {
           var css;
           css = {
             "transform": "translate3d(" + (x * i) + "px," + (y * i) + "px," + (z * i) + "px)"
           };
           if (i === 0) {
-            return append("slide current transform", 0, css);
+            append("slide current transform", 0, css);
+            return location.hash = i;
           } else {
             return append("slide transform", i, css);
           }
@@ -206,12 +274,13 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
       }
     },
     moveSlide: function(direction) {
-      var next, nextpage, obj;
+      var next, nextpage, obj, self;
+      self = this;
       if (sbClient.lock) {
         return;
       }
       nextpage = sbClient.page.current + direction;
-      next = this.collection.at(nextpage);
+      next = self.collection.at(nextpage);
       if (next) {
         obj = {
           name: 'move',
@@ -224,24 +293,20 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
         sbClient.lock = true;
         switch (sbClient.option.animation) {
           case 'horizontal':
-            horizontalMove(direction, nextpage);
+            sbClient.horizontalMove(direction, nextpage);
             break;
           case 'vertical':
-            verticalMove(direction, nextpage);
+            sbClient.verticalMove(direction, nextpage);
             break;
           case 'fade':
-            fadeMove(next);
+            sbClient.fadeMove(next);
             break;
           default:
-            fadeMove(next);
+            sbClient.simpleMove(next);
         }
         sbClient.page.current = nextpage;
+        location.hash = sbClient.page.current;
         return sbClient.lock = false;
-      }
-    },
-    execMove: function(data) {
-      if (data.currentPage === sbClient.page.current) {
-        return this.moveSlide(data.direction);
       }
     },
     dispHelp: function() {
@@ -256,110 +321,28 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
     }
   });
 
-  resizeSlide = function() {
-    return $('.slide').each(function() {
-      return $(this).css({
-        'height': $(window).height() - 72,
-        'width': $(window).width() - 72
-      });
-    });
-  };
-
-  fadeMove = function(slide) {
-    var tmp;
-    tmp = document.createElement('div');
-    tmp.id = "slide_" + (slide.get('page'));
-    $(tmp).addClass(slide.get('class')).addClass('slide current').append(slide.get('elements'));
-    $('#wrap').fadeOut(250, function() {
-      $('#wrap').empty().removeClass().append(tmp);
-      return resizeSlide();
-    });
-    return $('#wrap').fadeIn(500, function() {
-      return sbClient.lock = false;
-    });
-  };
-
-  slideMove = function(x, y, z, direction, nextpage) {
-    if (direction < 0) {
-      direction += 1;
-    }
-    return $('#wrap > .slide').each(function(i, e) {
-      var css, xx, yy, zz;
-      xx = x * (i - nextpage);
-      yy = y * (i - nextpage);
-      zz = z * (i - nextpage);
-      css = {
-        "transform": "translate3d(" + xx + "px," + yy + "px," + zz + "px)"
-      };
-      return $(e).css(css);
-    });
-  };
-
-  horizontalMove = function(direction, nextpage) {
-    slideMove($(window).width(), 0, 0, direction, nextpage);
-    return sbClient.lock = false;
-  };
-
-  verticalMove = function(direction, nextpage) {
-    slideMove(0, $(window).height(), 0, direction, nextpage);
-    return sbClient.lock = false;
-  };
-
   sbClient.Model.Plugin = Backbone.Model.extend({
     defaults: {
+      id: '',
       name: '',
       callback: '',
       element: '',
       initialScript: function() {}
-    }
-  });
-
-  sbClient.plugins.serverpush = new sbClient.Model.Plugin({
-    name: "serverpush",
-    element: "<div id='#serverpush' class='pluginOption'>\n  <input type='checkbox' name='serverpushCheck' value='enable' checked>ServerPush\n</div>",
-    initialScript: function() {
-      return $('[name="serverpushCheck"]').bind('change', function() {
-        return sbClient.pushMethods.serverpush = $(this).attr("checked") === "checked";
-      });
-    }
-  });
-
-  sbClient.Collection.Plugins = Backbone.Collection.extend({
-    model: sbClient.Model.Plugin,
-    fetch: function() {
-      var self;
-      self = this;
-      return _.each(sbClient.plugins, function(plugin) {
-        self.add(plugin);
-        return sbClient.pushMethods[plugin.get('name')] = true;
-      });
-    }
-  });
-
-  sbClient.View.PluginView = Backbone.View.extend({
-    el: $('#help'),
+    },
     initialize: function() {
       var self;
-      console.log("initialize plugins");
       self = this;
-      this.collection = new sbClient.Collection.Plugins();
-      _.bindAll(this, 'render');
-      this.collection.on('add', function(plugin) {
-        return self.render(plugin);
+      return $(function() {
+        var name, script;
+        name = self.get('name');
+        sbClient.plugins[name] = self;
+        sbClient.pushMethods[name] = true;
+        $('#help').append(self.get('element'));
+        script = self.get('initialScript') || {};
+        return script();
       });
-      return this.collection.fetch();
-    },
-    render: function(plugin) {
-      var script;
-      $('#help').append(plugin.get('element'));
-      script = plugin.get('initialScript');
-      return script();
     }
   });
-
-  sbClient.View.PluginView.prototype.setPlugin = function(plugin) {
-    return this.collection.add(plugin);
-  };
 
   socket = typeof io !== "undefined" && io !== null ? io.connect("http://" + location.host) : void 0;
 
@@ -376,24 +359,17 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
         return socket.emit(obj.name, obj);
       });
       socket.on('users', function(userList) {
-        return setUserList(userList);
+        return sbClient.setUserList(userList);
       });
       socket.on('move', function(obj) {
-        if (!isEnableServerPush('move')) {
-          return false;
-        }
-        return move(obj);
+        return sbClient.move(obj);
       });
       socket.on('plugin', function(obj) {
         var func;
-        if (!obj.plugin || !obj.plugin.name) {
-          return false;
+        if (sbClient.isEnablePlugin(obj)) {
+          func = sbClient.plugins[obj.plugin.name].get("callback") || {};
+          return func(obj.data);
         }
-        if (!isEnableServerPush(obj.plugin.name)) {
-          return false;
-        }
-        func = sbClient.plugins[obj.plugin.name].get("callback") || {};
-        return func(obj.data);
       });
       return socket.on('disconnect', function() {
         $('body').off('execEmit');
@@ -403,9 +379,9 @@ licence: [MIT](http://opensource.org/licenses/mit-license.php)
   }
 
   $(function() {
-    resizeSlide();
+    sbClient.resizeSlide();
     $(window).bind('resize', function() {
-      return resizeSlide();
+      return sbClient.resizeSlide();
     });
     return $('a').bind('click', function(e) {
       e.stopPropagation();
